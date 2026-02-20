@@ -5,6 +5,7 @@ import { AuthContext } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Unauthorized from "./pages/Unauthorized";
+import Register from "./pages/Register";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import TrainerDashboard from "./pages/trainer/TrainerDashboard";
@@ -25,6 +26,7 @@ function App() {
 
         {/* Login Page */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Unauthorized */}
         <Route path="/unauthorized" element={<Unauthorized />} />
