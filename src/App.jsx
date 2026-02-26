@@ -8,6 +8,11 @@ import Unauthorized from "./pages/Unauthorized";
 import Register from "./pages/Register";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import Dashboard from "./pages/admin/Dashboard";
+import ManageTrainer from "./pages/admin/ManageTrainers";
+import ManageAnalysts from "./pages/admin/ManageAnalysts";
+import ManageCounsellor from "./pages/admin/ManageCounsellors";
+
 import TrainerDashboard from "./pages/trainer/TrainerDashboard";
 import AnalystDashboard from "./pages/analyst/AnalystDashboard";
 import CounsellorDashboard from "./pages/counsellor/CounsellorDashboard";
@@ -21,17 +26,13 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* Home Page */}
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
-
-        {/* Login Page */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        {/* Unauthorized */}
         <Route path="/unauthorized" element={<Unauthorized />} />
 
-        {/* Protected Routes */}
+        {/* ================= ADMIN ROUTES ================= */}
         <Route
           path="/admin"
           element={
@@ -39,8 +40,17 @@ function App() {
               <AdminDashboard />
             </ProtectedRoute>
           }
-        />
+        >
+          {/* Default page when /admin loads */}
+          <Route index element={<Dashboard />} />
 
+          {/* Sidebar routes */}
+          <Route path="trainers" element={<ManageTrainer />} />
+          <Route path="analysts" element={<ManageAnalysts />} />
+          <Route path="counsellors" element={<ManageCounsellor />} />
+        </Route>
+
+        {/* ================= OTHER ROLES ================= */}
         <Route
           path="/trainer"
           element={
