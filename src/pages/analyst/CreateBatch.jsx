@@ -1,232 +1,224 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
 
-const CreateBatch = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-
+const CreateBatch = ({ setActivePage }) => {
   const [formData, setFormData] = useState({
-    batchName: "",
-    batchNo: "",
-    domain: "",
-    timing: "",
-    duration: "",
-    createdAt: new Date().toISOString(),
+    batchName: '',
+    batchNo: '',
+    domain: '',
+    startDate: '',
+    endDate: '',
+    timing: '',
+    status: 'scheduled'
   });
 
-  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const domainOptions = [
-    "Web Development",
-    "Data Science",
-    "AI/ML",
-    "Cloud Computing",
-    "Cybersecurity",
+  const domains = [
+    'Web Development',
+    'Data Science',
+    'UI/UX Design',
+    'Cybersecurity',
+    'Mobile App Development',
+    'Cloud Computing'
   ];
 
-  const timingOptions = [
-    "Morning",
-    "Afternoon",
-    "Evening",
-  ];
-
-  const durationOptions = [
-    "4 Weeks",
-    "6 Weeks",
-    "8 Weeks",
-    "12 Weeks",
+  const statuses = [
+    { value: 'scheduled', label: 'Scheduled', color: 'bg-blue-100 text-blue-800' },
+    { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
+    { value: 'completed', label: 'Completed', color: 'bg-gray-100 text-gray-800' }
   ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: null });
-    }
-  };
-
-  const validate = () => {
-    const newErrors = {};
-
-    if (!formData.batchName) newErrors.batchName = "Batch name is required";
-    if (!formData.batchNo) newErrors.batchNo = "Batch number is required";
-    if (!formData.domain) newErrors.domain = "Domain is required";
-    if (!formData.timing) newErrors.timing = "Timing is required";
-    if (!formData.duration) newErrors.duration = "Duration is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    if (error) setError('');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
 
-    if (!validate()) return;
+    // Basic validation
+    if (!formData.batchName || !formData.batchNo || !formData.domain || !formData.startDate || !formData.endDate || !formData.timing) {
+      setError('Please fill in all required fields.');
+      setIsSubmitting(false);
+      return;
+    }
 
-    setLoading(true);
-
-    setTimeout(() => {
-      const batches = JSON.parse(localStorage.getItem("batches")) || [];
-
+    try {
+      // Get existing batches from localStorage
+      const existingBatches = JSON.parse(localStorage.getItem('batches')) || [];
+      
+      // Create new batch object
       const newBatch = {
-        id: Date.now().toString(),
         ...formData,
+        id: Date.now().toString(),
+        createdAt: new Date().toISOString()
       };
 
-      batches.push(newBatch);
-      localStorage.setItem("batches", JSON.stringify(batches));
+      // Save back to localStorage
+      const updatedBatches = [...existingBatches, newBatch];
+      localStorage.setItem('batches', JSON.stringify(updatedBatches));
 
-      setLoading(false);
-      alert("Batch Created Successfully!");
-
-      navigate("/analyst/manage");
-    }, 800);
+      // Show success and redirect
+      alert('Batch created successfully!');
+      
+      // Navigate back to manage batches
+      if (setActivePage) {
+        setActivePage('manage-batch');
+      }
+    } catch (err) {
+      setError('Failed to save batch. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="bg-white shadow-lg rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
-          Create New Batch
-        </h1>
+    <div className="max-w-4xl mx-auto py-8 px-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 transition-all hover:shadow-2xl">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-6">
+          <h2 className="text-2xl font-bold text-white">Create New Batch</h2>
+          <p className="text-indigo-100 mt-1">Fill in the details to set up a new training batch.</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Batch Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Batch Name
-            </label>
-            <input
-              type="text"
-              name="batchName"
-              value={formData.batchName}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${
-                errors.batchName ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.batchName && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.batchName}
-              </p>
-            )}
+        <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded text-red-700 text-sm animate-pulse">
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Batch Name */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Batch Name*</label>
+              <input
+                type="text"
+                name="batchName"
+                value={formData.batchName}
+                onChange={handleChange}
+                placeholder="e.g. Full Stack Alpha"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* Batch Number */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Batch No*</label>
+              <input
+                type="text"
+                name="batchNo"
+                value={formData.batchNo}
+                onChange={handleChange}
+                placeholder="e.g. B2024-001"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* Domain */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Domain*</label>
+              <select
+                name="domain"
+                value={formData.domain}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              >
+                <option value="">Select Domain</option>
+                {domains.map(d => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Timing */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Timing*</label>
+              <input
+                type="text"
+                name="timing"
+                value={formData.timing}
+                onChange={handleChange}
+                placeholder="e.g. 10:00 AM - 12:00 PM"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* Start Date */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">Start Date*</label>
+              <input
+                type="date"
+                name="startDate"
+                value={formData.startDate}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* End Date */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">End Date*</label>
+              <input
+                type="date"
+                name="endDate"
+                value={formData.endDate}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                required
+              />
+            </div>
+
+            {/* Status */}
+            <div className="space-y-2 col-span-2">
+              <label className="block text-sm font-semibold text-gray-700">Status</label>
+              <div className="flex flex-wrap gap-4">
+                {statuses.map(s => (
+                  <label key={s.value} className="flex items-center space-x-2 cursor-pointer group">
+                    <input
+                      type="radio"
+                      name="status"
+                      value={s.value}
+                      checked={formData.status === s.value}
+                      onChange={handleChange}
+                      className="text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                    />
+                    <span className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${s.color} border-2 border-transparent group-hover:border-current transition-all`}>
+                      {s.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Batch Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Batch Number
-            </label>
-            <input
-              type="text"
-              name="batchNo"
-              value={formData.batchNo}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${
-                errors.batchNo ? "border-red-500" : "border-gray-300"
-              }`}
-            />
-            {errors.batchNo && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.batchNo}
-              </p>
-            )}
-          </div>
-
-          {/* Domain */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Domain
-            </label>
-            <select
-              name="domain"
-              value={formData.domain}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${
-                errors.domain ? "border-red-500" : "border-gray-300"
-              }`}
+          <div className="pt-8 border-t border-gray-100 flex items-center justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => setActivePage('dashboard')}
+              className="px-6 py-2.5 text-gray-600 font-bold hover:bg-gray-100 rounded-xl transition-all"
             >
-              <option value="">Select Domain</option>
-              {domainOptions.map((domain) => (
-                <option key={domain} value={domain}>
-                  {domain}
-                </option>
-              ))}
-            </select>
-            {errors.domain && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.domain}
-              </p>
-            )}
-          </div>
-
-          {/* Timing */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Timing
-            </label>
-            <select
-              name="timing"
-              value={formData.timing}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${
-                errors.timing ? "border-red-500" : "border-gray-300"
-              }`}
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-10 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <option value="">Select Timing</option>
-              {timingOptions.map((timing) => (
-                <option key={timing} value={timing}>
-                  {timing}
-                </option>
-              ))}
-            </select>
-            {errors.timing && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.timing}
-              </p>
-            )}
+              {isSubmitting ? 'Creating...' : 'Create Batch'}
+            </button>
           </div>
-
-          {/* Duration */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Duration
-            </label>
-            <select
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${
-                errors.duration ? "border-red-500" : "border-gray-300"
-              }`}
-            >
-              <option value="">Select Duration</option>
-              {durationOptions.map((duration) => (
-                <option key={duration} value={duration}>
-                  {duration}
-                </option>
-              ))}
-            </select>
-            {errors.duration && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.duration}
-              </p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50"
-          >
-            {loading ? "Creating..." : "Create Batch"}
-          </button>
         </form>
       </div>
     </div>
