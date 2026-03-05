@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/ToastContext';
 
 const ManageAnalysts = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [analysts, setAnalysts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -82,7 +84,7 @@ const ManageAnalysts = () => {
     // Check if email already exists
     const userExists = users.find(user => user.email === formData.email);
     if (userExists) {
-      alert('Analyst with this email already exists!');
+      toast.error('Analyst with this email already exists!');
       return;
     }
 
@@ -99,7 +101,7 @@ const ManageAnalysts = () => {
     setAnalysts([...analysts, newAnalyst]);
     setShowAddModal(false);
     resetForm();
-    alert('Analyst added successfully!');
+    toast.success('Analyst added successfully!');
   };
 
   // Edit analyst
@@ -142,7 +144,7 @@ const ManageAnalysts = () => {
     setAnalysts(updatedAnalysts);
     setShowEditModal(false);
     resetForm();
-    alert('Analyst updated successfully!');
+    toast.success('Analyst updated successfully!');
   };
 
   // Delete analyst
@@ -156,7 +158,7 @@ const ManageAnalysts = () => {
     setAnalysts(updatedAnalysts);
     setShowDeleteModal(false);
     setSelectedAnalyst(null);
-    alert('Analyst deleted successfully!');
+    toast.success('Analyst deleted successfully!');
   };
 
   // Filter analysts based on search and status

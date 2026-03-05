@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/ToastContext';
 
 const ManageCounsellors = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [counsellors, setCounsellors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -89,7 +91,7 @@ const ManageCounsellors = () => {
     // Check if email already exists
     const userExists = users.find(user => user.email === formData.email);
     if (userExists) {
-      alert('Counsellor with this email already exists!');
+      toast.error('Counsellor with this email already exists!');
       return;
     }
 
@@ -106,7 +108,7 @@ const ManageCounsellors = () => {
     setCounsellors([...counsellors, newCounsellor]);
     setShowAddModal(false);
     resetForm();
-    alert('Counsellor added successfully!');
+    toast.success('Counsellor added successfully!');
   };
 
   // Edit counsellor
@@ -152,7 +154,7 @@ const ManageCounsellors = () => {
     setCounsellors(updatedCounsellors);
     setShowEditModal(false);
     resetForm();
-    alert('Counsellor updated successfully!');
+    toast.success('Counsellor updated successfully!');
   };
 
   // Delete counsellor
@@ -166,7 +168,7 @@ const ManageCounsellors = () => {
     setCounsellors(updatedCounsellors);
     setShowDeleteModal(false);
     setSelectedCounsellor(null);
-    alert('Counsellor deleted successfully!');
+    toast.success('Counsellor deleted successfully!');
   };
 
   // Get unique specializations for filter

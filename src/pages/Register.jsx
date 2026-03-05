@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useToast } from '../components/ToastContext';
 
 function Register() {
+  const toast = useToast();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -28,7 +30,7 @@ function Register() {
       );
 
       if (userExists) {
-        alert("User already exists!");
+        toast.error("User already exists!");
         setIsLoading(false);
         return;
       }
@@ -42,7 +44,7 @@ function Register() {
       users.push(newUser);
       localStorage.setItem("users", JSON.stringify(users));
 
-      alert("Admin Registration Successful!");
+      toast.success("Admin Registration Successful!");
       navigate("/login");
     }, 800);
   };

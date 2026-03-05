@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../components/ToastContext';
 
 const ManageTrainers = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -80,7 +82,7 @@ const ManageTrainers = () => {
     // Check if email already exists
     const userExists = users.find(user => user.email === formData.email);
     if (userExists) {
-      alert('Trainer with this email already exists!');
+      toast.error('Trainer with this email already exists!');
       return;
     }
 
@@ -97,7 +99,7 @@ const ManageTrainers = () => {
     setTrainers([...trainers, newTrainer]);
     setShowAddModal(false);
     resetForm();
-    alert('Trainer added successfully!');
+    toast.success('Trainer added successfully!');
   };
 
   // Edit trainer
@@ -139,7 +141,7 @@ const ManageTrainers = () => {
     setTrainers(updatedTrainers);
     setShowEditModal(false);
     resetForm();
-    alert('Trainer updated successfully!');
+    toast.success('Trainer updated successfully!');
   };
 
   // Delete trainer
@@ -153,7 +155,7 @@ const ManageTrainers = () => {
     setTrainers(updatedTrainers);
     setShowDeleteModal(false);
     setSelectedTrainer(null);
-    alert('Trainer deleted successfully!');
+    toast.success('Trainer deleted successfully!');
   };
 
   // Get unique domains for filter

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastContext';
 
 const ManageBatch = () => {
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [editingBatch, setEditingBatch] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -14,12 +16,12 @@ const ManageBatch = () => {
     setBatches(storedBatches);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this batch? This action cannot be undone.')) {
+  const handleDelete = async (id) => {
+    if (await toast.confirm('Are you sure you want to delete this batch? This action cannot be undone.', 'Delete Batch')) {
       const updatedBatches = batches.filter(batch => batch.id !== id);
       localStorage.setItem('batches', JSON.stringify(updatedBatches));
       setBatches(updatedBatches);
-      alert('Batch deleted successfully.');
+      toast.success('Batch deleted successfully.');
     }
   };
 
@@ -36,7 +38,7 @@ const ManageBatch = () => {
     localStorage.setItem('batches', JSON.stringify(updatedBatches));
     setBatches(updatedBatches);
     setShowEditModal(false);
-    alert('Batch updated successfully.');
+    toast.success('Batch updated successfully.');
   };
 
   const getStatusColor = (status) => {

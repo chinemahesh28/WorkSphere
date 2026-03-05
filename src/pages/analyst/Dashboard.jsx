@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastContext';
 
 const Dashboard = () => {
+  const toast = useToast();
   const [batches, setBatches] = useState([]);
   const [filteredBatches, setFilteredBatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -76,8 +78,8 @@ const Dashboard = () => {
   }, [searchTerm, statusFilter, sortConfig, batches]);
 
   // Handle batch deletion
-  const handleDeleteBatch = (batchId) => {
-    if (window.confirm('Are you sure you want to delete this batch?')) {
+  const handleDeleteBatch = async (batchId) => {
+    if (await toast.confirm('Are you sure you want to delete this batch?', 'Delete Batch')) {
       const updatedBatches = batches.filter(batch => batch.id !== batchId);
       localStorage.setItem('batches', JSON.stringify(updatedBatches));
       setBatches(updatedBatches);

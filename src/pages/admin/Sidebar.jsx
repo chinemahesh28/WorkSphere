@@ -1,8 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useToast } from '../../components/ToastContext';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifications, setNotifications] = useState(3);
@@ -24,8 +26,9 @@ const Sidebar = () => {
   const activeClass = "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg";
   const inactiveClass = "text-gray-700 hover:bg-gray-100 hover:text-indigo-600";
 
-  const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+  const handleLogout = async () => {
+    const confirmed = await toast.confirm('Are you sure you want to logout?', 'Logout');
+    if (confirmed) {
       localStorage.removeItem('currentUser');
       navigate('/login');
     }

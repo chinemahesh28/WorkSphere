@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useToast } from '../../components/ToastContext';
 
 const CreateBatch = ({ setActivePage }) => {
+  const toast = useToast();
   const [formData, setFormData] = useState({
     batchName: '',
     batchNo: '',
@@ -66,7 +68,7 @@ const CreateBatch = ({ setActivePage }) => {
       localStorage.setItem('batches', JSON.stringify(updatedBatches));
 
       // Show success and redirect
-      alert('Batch created successfully!');
+      toast.success('Batch created successfully!');
       
       // Navigate back to manage batches
       if (setActivePage) {
