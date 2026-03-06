@@ -53,16 +53,9 @@ const Sidebar = () => {
           <div className="flex justify-between items-center h-16">
             
             {/* Left Section - Logo and Brand */}
-            <div className="flex items-center space-x-4">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <span className="text-xl font-bold text-gray-800">Admin Panel</span>
-              
-              {/* Total Users Badge */}
-              
+            <div className="flex items-center space-x-3">
+              <img src="/logo.png" alt="WorkSphere" className="w-9 h-9 rounded-lg object-cover animate-logo-glow shadow-md" />
+              <span className="text-xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent animate-brand-shimmer bg-[length:200%_auto] hidden sm:block">WorkSphere</span>
             </div>
 
             {/* Center Section - Navigation Links (Desktop) */}

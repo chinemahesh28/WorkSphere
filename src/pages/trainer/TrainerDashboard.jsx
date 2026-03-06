@@ -3,7 +3,6 @@ import TrainerNavbar from "./TrainerNavbar";
 import TrainerHome from "./TrainerHome";
 import ClassUpdate from "./ClassUpdate";
 import ManageRecords from "./ManageRecords";
-import UploadMaterials from "./UploadMaterials";
 
 const TrainerDashboard = () => {
   const [activePage, setActivePage] = useState("dashboard");
@@ -14,8 +13,6 @@ const TrainerDashboard = () => {
         return <ClassUpdate setActivePage={setActivePage} />;
       case "manage-records":
         return <ManageRecords setActivePage={setActivePage} />;
-      case "upload-materials":
-        return <UploadMaterials />;
       case "dashboard":
       default:
         return <TrainerHome setActivePage={setActivePage} />;

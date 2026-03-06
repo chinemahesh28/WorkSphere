@@ -11,13 +11,14 @@ const ClassUpdate = ({ setActivePage }) => {
     description: '',
     status: 'completed'
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [materialTitle, setMaterialTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const trainerId = user?.id;
 
   useEffect(() => {
-    // Load only batches assigned to this trainer
     const allBatches = JSON.parse(localStorage.getItem('batches')) || [];
     const assignments = JSON.parse(localStorage.getItem('batchTrainerAssignments')) || [];
     const myBatchIds = assignments.filter(a => a.trainerId === trainerId).map(a => a.batchId);
@@ -28,15 +29,25 @@ const ClassUpdate = ({ setActivePage }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.batchId || !formData.date || !formData.topic) {
-      toast.warning('Please fill all required fields.');
-      return;
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === 'application/pdf') {
+      if (file.size > 5 * 1024 * 1024) { toast.error('File size must be under 5MB.'); return; }
+      setSelectedFile(file);
+    } else {
+      toast.error('Please select a PDF file.');
+      e.target.value = '';
     }
+  };
 
-    setIsSubmitting(true);
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setMaterialTitle('');
+    const fileInput = document.getElementById('class-update-file-input');
+    if (fileInput) fileInput.value = '';
+  };
 
+  const saveUpdate = (fileData, fileName) => {
     const updates = JSON.parse(localStorage.getItem('classUpdates')) || [];
     const newUpdate = {
       id: Date.now().toString(),
@@ -49,12 +60,46 @@ const ClassUpdate = ({ setActivePage }) => {
       createdAt: new Date().toISOString()
     };
 
-    updates.push(newUpdate);
-    localStorage.setItem('classUpdates', JSON.stringify(updates));
+    if (fileData) {
+      newUpdate.fileData = fileData;
+      newUpdate.fileName = fileName;
+      newUpdate.materialTitle = materialTitle || fileName;
+    }
 
-    toast.success('Class update logged successfully!');
-    setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], topic: '', description: '', status: 'completed' });
+    updates.push(newUpdate);
+
+    try {
+      localStorage.setItem('classUpdates', JSON.stringify(updates));
+      toast.success('Class update logged successfully!');
+      setFormData({ batchId: '', date: new Date().toISOString().split('T')[0], topic: '', description: '', status: 'completed' });
+      setSelectedFile(null);
+      setMaterialTitle('');
+      const fileInput = document.getElementById('class-update-file-input');
+      if (fileInput) fileInput.value = '';
+    } catch (err) {
+      toast.error('Save failed — attached file may be too large for storage.');
+    }
     setIsSubmitting(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.batchId || !formData.date || !formData.topic) {
+      toast.warning('Please fill all required fields.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    if (selectedFile) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        saveUpdate(reader.result, selectedFile.name);
+      };
+      reader.readAsDataURL(selectedFile);
+    } else {
+      saveUpdate(null, null);
+    }
   };
 
   return (
@@ -119,6 +164,44 @@ const ClassUpdate = ({ setActivePage }) => {
                 </label>
               ))}
             </div>
+          </div>
+
+          {/* Upload Material (Optional) */}
+          <div className="space-y-4 p-5 bg-gradient-to-br from-indigo-50/60 to-purple-50/60 rounded-xl border border-indigo-100">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+              <label className="block text-sm font-semibold text-gray-700">Attach Material <span className="text-gray-400 font-normal">(optional, PDF only, max 5MB)</span></label>
+            </div>
+
+            {!selectedFile ? (
+              <label className="cursor-pointer flex items-center justify-center gap-3 px-6 py-4 border-2 border-dashed border-indigo-300 rounded-xl bg-white hover:bg-indigo-50 transition-colors text-indigo-600 font-medium">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                <span>Choose a PDF file</span>
+                <input id="class-update-file-input" type="file" accept=".pdf" onChange={handleFileChange} className="hidden" />
+              </label>
+            ) : (
+              <div className="flex items-center gap-4 p-3 bg-white rounded-xl border border-indigo-200">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <svg className="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12a2 2 0 002-2V6l-4-4H6a2 2 0 00-2 2v12a2 2 0 002 2zm4-10h4v4H8V8z" /></svg>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-400">{(selectedFile.size / 1024).toFixed(1)} KB</p>
+                  </div>
+                </div>
+                <button type="button" onClick={handleRemoveFile} className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0" title="Remove file">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            )}
+
+            {selectedFile && (
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">Material Title</label>
+                <input type="text" value={materialTitle} onChange={(e) => setMaterialTitle(e.target.value)}
+                  placeholder="e.g. React Basics Cheatsheet"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-white" />
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end pt-4 border-t border-gray-100">

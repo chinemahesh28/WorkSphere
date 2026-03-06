@@ -9,6 +9,8 @@ const AssignBatch = () => {
   const [selectedStudent, setSelectedStudent] = useState('');
   const [selectedBatch, setSelectedBatch] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -54,6 +56,30 @@ const AssignBatch = () => {
       setAssignments(updatedAssignments);
       toast.success('Assignment removed.');
     }
+  };
+
+  const handleEdit = (assignment) => {
+    setEditingAssignment({ ...assignment });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    // Check for duplicate (excluding the current assignment)
+    if (assignments.some(a => a.id !== editingAssignment.id && a.studentId === editingAssignment.studentId && a.batchId === editingAssignment.batchId)) {
+      toast.warning('This student is already assigned to this batch.');
+      return;
+    }
+    const updatedAssignments = assignments.map(a =>
+      a.id === editingAssignment.id
+        ? { ...a, studentId: editingAssignment.studentId, batchId: editingAssignment.batchId }
+        : a
+    );
+    localStorage.setItem('studentBatchAssignments', JSON.stringify(updatedAssignments));
+    setAssignments(updatedAssignments);
+    setShowEditModal(false);
+    setEditingAssignment(null);
+    toast.success('Assignment updated successfully!');
   };
 
   const getStudentName = (id) => {
@@ -207,15 +233,26 @@ const AssignBatch = () => {
                       {new Date(assignment.assignedAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={() => handleRemove(assignment.id)}
-                        className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-                        title="Remove Assignment"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => handleEdit(assignment)}
+                          className="p-2 text-indigo-600 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
+                          title="Edit Assignment"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => handleRemove(assignment.id)}
+                          className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                          title="Remove Assignment"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -235,6 +272,37 @@ const AssignBatch = () => {
           </table>
         </div>
       </div>
+
+      {showEditModal && editingAssignment && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex justify-between items-center">
+              <h3 className="font-bold text-lg">Edit Batch Assignment</h3>
+              <button onClick={() => setShowEditModal(false)}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Student</label>
+                <select value={editingAssignment.studentId} onChange={(e) => setEditingAssignment({...editingAssignment, studentId: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                  {students.map(s => <option key={s.id} value={s.id}>{s.fullName} ({s.email})</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Batch</label>
+                <select value={editingAssignment.batchId} onChange={(e) => setEditingAssignment({...editingAssignment, batchId: e.target.value})} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                  {batches.map(b => <option key={b.id} value={b.id}>{b.batchName} ({b.batchNo}) — {b.domain}</option>)}
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <button type="button" onClick={() => setShowEditModal(false)} className="px-6 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg">Cancel</button>
+                <button type="submit" className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg shadow-lg hover:bg-indigo-700">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeIn {

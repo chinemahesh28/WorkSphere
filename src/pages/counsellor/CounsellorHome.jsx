@@ -137,47 +137,7 @@ const CounsellorHome = ({ setActivePage }) => {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <button
-          onClick={() => setActivePage('add-student')}
-          className="flex items-center gap-3 p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-        >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-          </svg>
-          <div className="text-left">
-            <p className="font-bold">Add New Student</p>
-            <p className="text-sm text-indigo-100">Register a student</p>
-          </div>
-        </button>
-
-        <button
-          onClick={() => setActivePage('assign-batch')}
-          className="flex items-center gap-3 p-4 bg-white border border-gray-200 text-gray-800 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
-        >
-          <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-          <div className="text-left">
-            <p className="font-bold">Assign Batch</p>
-            <p className="text-sm text-gray-500">Assign students to batches</p>
-          </div>
-        </button>
-
-        <button
-          onClick={() => setActivePage('assign-trainer')}
-          className="flex items-center gap-3 p-4 bg-white border border-gray-200 text-gray-800 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
-        >
-          <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <div className="text-left">
-            <p className="font-bold">Assign Trainer</p>
-            <p className="text-sm text-gray-500">Assign trainers to batches</p>
-          </div>
-        </button>
-      </div>
+      
 
       {/* ========== BATCH DETAILS WITH STUDENTS & TRAINERS ========== */}
       <div className="space-y-4">
