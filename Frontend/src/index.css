@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/* WorkSphere Logo & Brand Animations */
+@keyframes logo-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.3), 0 2px 8px rgba(0,0,0,0.1); }
+  50% { box-shadow: 0 0 16px rgba(99, 102, 241, 0.5), 0 2px 12px rgba(0,0,0,0.15); }
+}
+
+@keyframes brand-shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.animate-logo-glow {
+  animation: logo-glow 2.5s ease-in-out infinite;
+}
+
+.animate-brand-shimmer {
+  animation: brand-shimmer 4s linear infinite;
+}
